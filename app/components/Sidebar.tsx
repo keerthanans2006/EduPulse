@@ -9,6 +9,7 @@ const navItems = [
 	{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
 	{ href: "/profile", label: "Profile", icon: Users },
 	{ href: "/admin/profile", label: "Profile", icon: Users },
+	{ href: "/teacher/profile", label: "Profile", icon: Users },
 	{ href: "/students", label: "Students", icon: Users },
 	{ href: "/records", label: "Records", icon: FileText },
 	{ href: "/predictions", label: "Predictions", icon: LineChart },
@@ -46,6 +47,10 @@ export default function Sidebar() {
 		if (item.href === "/admin/profile") {
 			return role === "Admin";
 		}
+		// Show Teacher-only profile path
+		if (item.href === "/teacher/profile") {
+			return role === "Teacher";
+		}
 		// Hide specific items for Teacher role
 		if (role === "Teacher") {
 			if (item.href === "/records") return false; // remove Records for Teacher
@@ -61,29 +66,29 @@ export default function Sidebar() {
 	});
 
 	return (
-		<aside className={`fixed md:static z-40 h-full bg-white border-r w-64 md:w-64 transition-transform duration-200 ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
-			<div className="flex items-center justify-between h-16 px-4 border-b">
+		<aside className={`fixed md:static z-40 h-full bg-blue-50 border-r border-blue-100 w-64 md:w-64 transition-transform duration-200 ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
+			<div className="flex items-center justify-between h-16 px-4 border-b border-blue-100">
 				<div>
-					<div className="text-xl font-semibold tracking-tight">EduPulse</div>
+					<div className="text-xl font-semibold tracking-tight text-blue-900">EduPulse</div>
 					{role && (
-						<div className="text-xs text-slate-500 -mt-1">{role}</div>
+						<div className="text-xs text-blue-600 -mt-1">{role}</div>
 					)}
 				</div>
-				<button className="md:hidden p-2 rounded-lg border" onClick={() => setOpen(false)}>✕</button>
+				<button className="md:hidden p-2 rounded-lg border border-blue-200 bg-white/60" onClick={() => setOpen(false)}>✕</button>
 			</div>
 			<nav className="p-3 space-y-1">
 				{filteredNavItems.map(item => {
 					const Icon = item.icon;
 					const active = pathname?.startsWith(item.href);
 					return (
-						<Link key={item.href} href={item.href as any} className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-slate-50 ${active ? "bg-slate-100 text-slate-900" : "text-slate-600"}`}>
+						<Link key={item.href} href={item.href as any} className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-blue-100 ${active ? "bg-blue-200 text-blue-900" : "text-blue-800/80"}`}>
 							<Icon className="w-4 h-4" />
 							<span>{item.label}</span>
 						</Link>
 					);
 				})}
 			</nav>
-			<button className="fixed bottom-4 left-4 md:hidden inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900 text-white shadow-lg" onClick={() => setOpen(v => !v)}>
+			<button className="fixed bottom-4 left-4 md:hidden inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-700 text-white shadow-lg" onClick={() => setOpen(v => !v)}>
 				<span>{open ? "Close" : "Menu"}</span>
 			</button>
 		</aside>

@@ -124,15 +124,12 @@ export default function StudentsPage() {
 		{ key: "attendancePercent", header: "Attendance %" },
 		{ key: "scorePercent", header: "Score %" },
 		{ key: "feeStatus", header: "Fee Status" },
-		{ 
-			key: "riskLevel", 
-			header: "Risk", 
+		{
+			key: "riskLevel",
+			header: "Risk",
 			render: (row) => (
 				<div className="flex items-center gap-2">
 					<RiskBadge level={row.riskLevel || "Low"} />
-					{row.aiPredicted && (
-						<span className="text-xs text-blue-600" title="AI Predicted">🤖</span>
-					)}
 				</div>
 			)
 		},

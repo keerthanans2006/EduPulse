@@ -26,17 +26,23 @@ export default function AlertsPage() {
         }
     }, []);
 
-    // When topEmail changes, prefill all rows that don't have a value yet
+    // When topEmail changes, mirror it to all row inputs
     useEffect(() => {
         if (!rows || rows.length === 0) return;
-        setMessages(prev => {
-            const next: Record<string, string> = { ...prev };
-            rows.forEach(r => {
-                if (!next[r.id]) next[r.id] = topEmail;
-            });
-            return next;
-        });
+        const next: Record<string, string> = {};
+        rows.forEach(r => { next[r.id] = topEmail; });
+        setMessages(next);
     }, [topEmail, rows]);
+
+    // Initialize row inputs once rows load (use current topEmail)
+    useEffect(() => {
+        if (!rows || rows.length === 0) return;
+        if (topEmail === "" && Object.keys(messages).length) return; // keep existing if user already typed
+        const next: Record<string, string> = {};
+        rows.forEach(r => { next[r.id] = topEmail; });
+        setMessages(next);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [rows]);
 
     const sendOne = (id: string) => {
         setSendingId(id);

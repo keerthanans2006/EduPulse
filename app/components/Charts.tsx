@@ -12,10 +12,10 @@ export function PerformanceBars({ data, title = "Performance" }: { data: PerfRow
             <div className="text-sm text-slate-500 mb-3">{title}</div>
             <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={data} margin={{ left: 8, right: 8, bottom: 8 }}>
+                    <BarChart data={data} margin={{ left: 20, right: 8, bottom: 8 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="metric" />
-                        <YAxis domain={[0, 100]} ticks={[0,20,40,60,80,100]} allowDecimals={false} tickFormatter={(v: any) => `${v}%`} width={36} />
+                        <YAxis domain={[0, 100]} ticks={[0,20,40,60,80,100]} allowDecimals={false} tickFormatter={(v: any) => `${v}%`} width={52} />
                         <Tooltip
                             formatter={(v: any, name: any) => [`${v}%`, name]}
                             labelFormatter={(label: any) => label}
@@ -64,7 +64,7 @@ export function AttendanceLine({ data }: { data: LineDataItem[] }) {
             <div className="text-sm text-slate-500 mb-3">Attendance Trend</div>
             <div className="h-64">
 				<ResponsiveContainer width="100%" height="100%">
-					<LineChart data={data} margin={{ left: 16, right: 8, bottom: 8 }}>
+					<LineChart data={data} margin={{ left: 20, right: 8, bottom: 8 }}>
 						<XAxis
 							dataKey="date"
 							interval="preserveStartEnd"
@@ -78,7 +78,7 @@ export function AttendanceLine({ data }: { data: LineDataItem[] }) {
 							}}
 							label={{ value: 'Date', position: 'insideBottomRight', offset: -4 }}
 						/>
-						<YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} allowDecimals={false} tickFormatter={(v: any) => `${v}%`} width={44} />
+						<YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} allowDecimals={false} tickFormatter={(v: any) => `${v}%`} width={52} />
 						<Tooltip formatter={(v: any) => [`${v}%`, "Attendance"]} labelFormatter={() => ""} />
 						<Line type="monotone" dataKey="attendance" stroke="#2563eb" strokeWidth={2} dot={false} />
 					</LineChart>
