@@ -10,6 +10,7 @@ const navItems = [
 	{ href: "/profile", label: "Profile", icon: Users },
 	{ href: "/admin/profile", label: "Profile", icon: Users },
 	{ href: "/teacher/profile", label: "Profile", icon: Users },
+	{ href: "/students/ai-assistant", label: "AI Assistant", icon: LineChart },
 	{ href: "/students", label: "Students", icon: Users },
 	{ href: "/records", label: "Records", icon: FileText },
 	{ href: "/predictions", label: "Predictions", icon: LineChart },
@@ -37,7 +38,7 @@ export default function Sidebar() {
 
 	const filteredNavItems = navItems.filter(item => {
 		if (role === "Student") {
-			return item.href === "/dashboard" || item.href === "/profile";
+			return item.href === "/dashboard" || item.href === "/profile" || item.href === "/students/ai-assistant";
 		}
 		// Hide student-only Profile for non-student roles
 		if (item.href === "/profile") {
@@ -80,11 +81,13 @@ export default function Sidebar() {
 				{filteredNavItems.map(item => {
 					const Icon = item.icon;
 					const active = pathname?.startsWith(item.href);
-					return (
-						<Link key={item.href} href={item.href as any} className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-blue-100 ${active ? "bg-blue-200 text-blue-900" : "text-blue-800/80"}`}>
-							<Icon className="w-4 h-4" />
-							<span>{item.label}</span>
-						</Link>
+						return (
+						<div key={item.href}>
+							<Link href={item.href as any} className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-blue-100 ${active ? "bg-blue-200 text-blue-900" : "text-blue-800/80"}`}>
+								<Icon className="w-4 h-4" />
+								<span>{item.label}</span>
+							</Link>
+						</div>
 					);
 				})}
 			</nav>

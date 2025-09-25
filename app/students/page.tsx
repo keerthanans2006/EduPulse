@@ -168,7 +168,16 @@ export default function StudentsPage() {
 				<form onSubmit={handleAddTeacherStudent} className="mb-4 bg-white rounded-2xl border p-4 shadow-sm grid gap-3 md:grid-cols-5">
 					<div>
 						<label className="block text-sm text-slate-600 mb-1">Student Name</label>
-						<input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Riya Verma" className="w-full px-3 py-2 rounded-xl border" />
+						<input
+							value={name}
+							onChange={(e) => {
+								const v = e.target.value;
+								const capped = v.length ? v.charAt(0).toUpperCase() + v.slice(1) : v;
+								setName(capped);
+							}}
+							placeholder="e.g., Riya Verma"
+							className="w-full px-3 py-2 rounded-xl border"
+						/>
 					</div>
 					<div>
 						<label className="block text-sm text-slate-600 mb-1">Attendance %</label>

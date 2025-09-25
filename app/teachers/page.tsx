@@ -105,7 +105,11 @@ export default function TeachersPage() {
 				<form onSubmit={handleAdd} className="bg-white rounded-2xl border p-4 shadow-sm grid gap-3 md:grid-cols-4">
 					<input
 						value={name}
-						onChange={(e) => setName(e.target.value)}
+						onChange={(e) => {
+							const v = e.target.value;
+							const capped = v.length ? v.charAt(0).toUpperCase() + v.slice(1) : v;
+							setName(capped);
+						}}
 						placeholder="Name"
 						className="px-3 py-2 rounded-xl border"
 					/>

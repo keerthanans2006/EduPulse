@@ -114,14 +114,20 @@ export default function DashboardPage({ searchParams }: { searchParams: { role?:
 								<div className="text-xl font-semibold">{student.attendancePercent}%</div>
 							</div>
 						</div>
-						<div className="mt-4 grid gap-4">
-							<PerformanceBars
-								data={[
-									{ metric: 'Marks', you: student.scorePercent, classAvg: classAvgMarks },
-									{ metric: 'Attendance', you: student.attendancePercent, classAvg: classAvgAttendance },
-								]}
-								title="Performance vs Class Average"
-							/>
+						<div className="mt-4 grid gap-4 md:grid-cols-2">
+							<div className="h-56 overflow-hidden">
+								<PerformanceBars
+									data={[
+										{ metric: 'Marks', you: student.scorePercent, classAvg: classAvgMarks },
+										{ metric: 'Attendance', you: student.attendancePercent, classAvg: classAvgAttendance },
+									]}
+									title="Performance vs Class Average"
+								/>
+							</div>
+							<div className="p-3 rounded-xl bg-slate-50 h-56 border">
+								<div className="text-slate-500 text-sm mb-2">Checklist</div>
+								<div className="text-slate-400 text-sm">Coming soon</div>
+							</div>
 						</div>
 					</div>
 

@@ -10,7 +10,7 @@ export function PerformanceBars({ data, title = "Performance" }: { data: PerfRow
     return (
         <div className="bg-white rounded-2xl border p-4 shadow-sm">
             <div className="text-sm text-slate-500 mb-3">{title}</div>
-            <div className="h-64">
+            <div className="h-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data} margin={{ left: 20, right: 8, bottom: 8 }}>
                         <CartesianGrid strokeDasharray="3 3" />
