@@ -60,6 +60,10 @@ declare module "recharts" {
 	export const XAxis: any;
 	export const YAxis: any;
 	export const Tooltip: any;
+	export const BarChart: any;
+	export const Bar: any;
+	export const Legend: any;
+	export const CartesianGrid: any;
 }
 
 

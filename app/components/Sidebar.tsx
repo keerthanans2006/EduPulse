@@ -7,6 +7,8 @@ import { LayoutDashboard, Users, FileText, LineChart, GraduationCap, BookOpen, B
 
 const navItems = [
 	{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+	{ href: "/profile", label: "Profile", icon: Users },
+	{ href: "/admin/profile", label: "Profile", icon: Users },
 	{ href: "/students", label: "Students", icon: Users },
 	{ href: "/records", label: "Records", icon: FileText },
 	{ href: "/predictions", label: "Predictions", icon: LineChart },
@@ -22,7 +24,10 @@ export default function Sidebar() {
 
 	React.useEffect(() => {
 		try {
-			const storedRole = typeof window !== 'undefined' ? localStorage.getItem('authRole') : null;
+			let storedRole: string | null = null;
+			if (typeof window !== 'undefined') {
+				storedRole = sessionStorage.getItem('authRole') || localStorage.getItem('authRole');
+			}
 			setRole(storedRole);
 		} catch {
 			setRole(null);
@@ -30,13 +35,27 @@ export default function Sidebar() {
 	}, []);
 
 	const filteredNavItems = navItems.filter(item => {
-		// Hide 'Records' for Admin users
-		if (item.href === "/records") {
-			return role !== "Admin";
+		if (role === "Student") {
+			return item.href === "/dashboard" || item.href === "/profile";
 		}
-		// Hide 'Teachers' for Teacher role
-		if (item.href === "/teachers") {
-			return role !== "Teacher";
+		// Hide student-only Profile for non-student roles
+		if (item.href === "/profile") {
+			return role === "Student";
+		}
+		// Show Admin-only profile path
+		if (item.href === "/admin/profile") {
+			return role === "Admin";
+		}
+		// Hide specific items for Teacher role
+		if (role === "Teacher") {
+			if (item.href === "/records") return false; // remove Records for Teacher
+			if (item.href === "/subjects") return false; // remove Subjects for Teacher
+			if (item.href === "/teachers") return false; // remove Teachers for Teacher
+		}
+		// Hide specific items for Admin role
+		if (role === "Admin") {
+			if (item.href === "/records") return false; // remove Records for Admin
+			if (item.href === "/subjects") return false; // remove Subjects for Admin
 		}
 		return true;
 	});
@@ -44,7 +63,12 @@ export default function Sidebar() {
 	return (
 		<aside className={`fixed md:static z-40 h-full bg-white border-r w-64 md:w-64 transition-transform duration-200 ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
 			<div className="flex items-center justify-between h-16 px-4 border-b">
-				<div className="text-xl font-semibold tracking-tight">EduPulse</div>
+				<div>
+					<div className="text-xl font-semibold tracking-tight">EduPulse</div>
+					{role && (
+						<div className="text-xs text-slate-500 -mt-1">{role}</div>
+					)}
+				</div>
 				<button className="md:hidden p-2 rounded-lg border" onClick={() => setOpen(false)}>✕</button>
 			</div>
 			<nav className="p-3 space-y-1">

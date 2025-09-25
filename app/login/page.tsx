@@ -19,16 +19,21 @@ export default function LoginPage() {
 	function handleTeacherLogin(e: any) {
 		e.preventDefault();
 		setError("");
-		const validUser = username.trim().toLowerCase() === "teacher";
-		const validPass = password === "admin1";
-		if (!validUser || !validPass) {
-			setError("Incorrect password or username");
-			return;
+		try {
+			const raw = typeof window !== 'undefined' ? localStorage.getItem('teacherAuth') : null;
+			const list: { id: string; username: string; password: string }[] = raw ? JSON.parse(raw) : [];
+			const found = list.find(a => a.username === username.trim() && a.password === password);
+			if (!found) {
+				setError("Incorrect password or username");
+				return;
+			}
+			sessionStorage.setItem("authRole", "Teacher");
+			sessionStorage.setItem("authUser", found.username);
+			sessionStorage.setItem("authTeacherId", found.id);
+			router.push("/dashboard?role=Teacher");
+		} catch {
+			setError("Login unavailable. Please contact admin.");
 		}
-		// Persist simple session (placeholder until real backend/database)
-		localStorage.setItem("authRole", "Teacher");
-		localStorage.setItem("authUser", "teacher");
-		router.push("/dashboard?role=Teacher");
 	}
 
 	function handleAdminLogin(e: any) {
@@ -40,9 +45,29 @@ export default function LoginPage() {
 			setError("Incorrect password or username");
 			return;
 		}
-		localStorage.setItem("authRole", "Admin");
-		localStorage.setItem("authUser", "admin");
+		sessionStorage.setItem("authRole", "Admin");
+		sessionStorage.setItem("authUser", "admin");
 		router.push("/dashboard?role=Admin");
+	}
+
+	function handleStudentLogin(e: any) {
+		e.preventDefault();
+		setError("");
+		try {
+			const raw = typeof window !== 'undefined' ? localStorage.getItem('studentAuth') : null;
+			const list: { id: string; username: string; password: string }[] = raw ? JSON.parse(raw) : [];
+			const found = list.find(a => a.username === username.trim() && a.password === password);
+			if (!found) {
+				setError("Incorrect password or username");
+				return;
+			}
+			sessionStorage.setItem("authRole", "Student");
+			sessionStorage.setItem("authUser", found.username);
+			sessionStorage.setItem("authStudentId", found.id);
+			router.push("/dashboard?role=Student");
+		} catch {
+			setError("Login unavailable. Please contact your teacher.");
+		}
 	}
 
 	return (
@@ -82,7 +107,7 @@ export default function LoginPage() {
 							<div className="text-sm text-red-600">{error}</div>
 						)}
 						<button type="submit" className="w-full px-4 py-2 rounded-xl bg-slate-900 text-white">Login</button>
-						<p className="text-xs text-slate-500 text-center">Sample creds - Username: teacher, Password: admin1</p>
+						<p className="text-xs text-slate-500 text-center">Tip: Your username and password are the exact name the Admin entered</p>
 					</form>
 				) : role === "Admin" ? (
 					<form className="space-y-3" onSubmit={handleAdminLogin}>
@@ -113,7 +138,33 @@ export default function LoginPage() {
 						<p className="text-xs text-slate-500 text-center">Sample creds - Username: admin, Password: admin</p>
 					</form>
 				) : (
-					<button type="button" onClick={handleContinue} className="w-full px-4 py-2 rounded-xl bg-slate-900 text-white">Continue</button>
+					<form className="space-y-3" onSubmit={handleStudentLogin}>
+						<div>
+							<label className="block text-sm text-slate-600 mb-1">Username</label>
+							<input
+								type="text"
+								value={username}
+								onChange={(e) => setUsername(e.target.value)}
+								placeholder="student name"
+								className="w-full px-3 py-2 rounded-xl border"
+							/>
+						</div>
+						<div>
+							<label className="block text-sm text-slate-600 mb-1">Password</label>
+							<input
+								type="password"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								placeholder="student name"
+								className="w-full px-3 py-2 rounded-xl border"
+							/>
+						</div>
+						{error && (
+							<div className="text-sm text-red-600">{error}</div>
+						)}
+						<button type="submit" className="w-full px-4 py-2 rounded-xl bg-slate-900 text-white">Login</button>
+						<p className="text-xs text-slate-500 text-center">Tip: Your username and password are the exact name your teacher entered</p>
+					</form>
 				)}
 			</div>
 		</div>

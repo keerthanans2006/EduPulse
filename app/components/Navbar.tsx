@@ -19,9 +19,8 @@ export default function Navbar() {
 	return (
 		<header className="h-16 bg-white border-b flex items-center justify-between px-4">
 			<h1 className="text-lg md:text-xl font-semibold tracking-tight">{title}</h1>
-			<div className="flex items-center gap-3">
-				<div className="w-8 h-8 rounded-full bg-slate-200" />
-			</div>
+			{/* Removed profile placeholder */}
+			<div />
 		</header>
 	);
 }

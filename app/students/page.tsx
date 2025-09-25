@@ -28,12 +28,14 @@ export default function StudentsPage() {
 	};
 
 	useEffect(() => {
-		const storedRole = typeof window !== 'undefined' ? localStorage.getItem('authRole') : null;
+		const storedRole = typeof window !== 'undefined'
+			? (sessionStorage.getItem('authRole') || localStorage.getItem('authRole'))
+			: null;
 		setRole(storedRole);
 
 		const loadAIPredictions = async () => {
 			try {
-				if (storedRole === "Teacher") {
+				if (storedRole === "Teacher" || storedRole === "Admin") {
 					// Load teacher-managed students from localStorage
 					const raw = typeof window !== 'undefined' ? localStorage.getItem(LS_KEY) : null;
 					const entries: Omit<StudentRecord, 'riskLevel' | 'aiPredicted'>[] = raw ? JSON.parse(raw) : [];
@@ -60,6 +62,18 @@ export default function StudentsPage() {
 		localStorage.setItem(LS_KEY, JSON.stringify(entries));
 	};
 
+	// Simple credential store for student logins
+	const AUTH_KEY = "studentAuth";
+	interface StudentAuth { id: string; username: string; password: string }
+	const loadStudentAuth = (): StudentAuth[] => {
+		if (typeof window === 'undefined') return [];
+		try { return JSON.parse(localStorage.getItem(AUTH_KEY) || '[]'); } catch { return []; }
+	};
+	const persistStudentAuth = (list: StudentAuth[]) => {
+		if (typeof window === 'undefined') return;
+		localStorage.setItem(AUTH_KEY, JSON.stringify(list));
+	};
+
 	const handleAddTeacherStudent = async (e: any) => {
 		e.preventDefault();
 		if (!name.trim()) return;
@@ -78,6 +92,11 @@ export default function StudentsPage() {
 		const current: Omit<StudentRecord, 'riskLevel' | 'aiPredicted'>[] = raw ? JSON.parse(raw) : [];
 		const next = [...current, base];
 		persistTeacherEntries(next);
+
+		// Create student credentials: username = name, password = name
+		const authList = loadStudentAuth();
+		authList.push({ id, username: name.trim(), password: name.trim() });
+		persistStudentAuth(authList);
 		// Update AI predictions list
 		const withAI = await getStudentsWithAIPredictionsFrom(next);
 		setAiStudents(withAI);
@@ -93,6 +112,9 @@ export default function StudentsPage() {
 		const current: Omit<StudentRecord, 'riskLevel' | 'aiPredicted'>[] = raw ? JSON.parse(raw) : [];
 		const next = current.filter(s => s.id !== id);
 		persistTeacherEntries(next);
+		// Remove auth entry
+		const authList = loadStudentAuth().filter(a => a.id !== id);
+		persistStudentAuth(authList);
 		const withAI = await getStudentsWithAIPredictionsFrom(next);
 		setAiStudents(withAI);
 	};
@@ -145,7 +167,7 @@ export default function StudentsPage() {
 
 	return (
 		<div>
-			{role === "Teacher" && (
+			{(role === "Teacher" || role === "Admin") && (
 				<form onSubmit={handleAddTeacherStudent} className="mb-4 bg-white rounded-2xl border p-4 shadow-sm grid gap-3 md:grid-cols-5">
 					<div>
 						<label className="block text-sm text-slate-600 mb-1">Student Name</label>
@@ -187,13 +209,8 @@ export default function StudentsPage() {
 					</div>
 				</form>
 			)}
-			<div className="mb-4 p-3 bg-blue-50 rounded-lg">
-				<p className="text-sm text-blue-800">
-					🤖 Risk levels are predicted using AI based on attendance, scores, and fee payment (Paid/Due). Teachers can add real student records here.
-				</p>
-			</div>
 			<DataTable
-				columns={role === "Teacher" ? teacherColumns : columns}
+				columns={(role === "Teacher" || role === "Admin") ? teacherColumns : columns}
 				rows={aiStudents}
 				searchKeys={["name"]}
 			/>

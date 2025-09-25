@@ -31,93 +31,44 @@ export async function getStudentsWithAIPredictionsFrom(input: Omit<StudentRecord
     return studentsWithPredictions;
 }
 
+// Seed data for teachers/subjects; students will be provided by teachers/admins
 export interface TeacherRecord {
-	id: string;
-	name: string;
-	subject: string;
-	email: string;
+    id: string;
+    name: string;
+    subject: string;
+    email: string;
 }
 
 export interface SubjectRecord {
-	id: string;
-	name: string;
-	createdAt: string; // ISO date
+    id: string;
+    name: string;
+    createdAt: string; // ISO date
 }
 
 export const teachers: TeacherRecord[] = [
-	{ id: "t1", name: "Aarav Mehta", subject: "Mathematics", email: "aarav.mehta@example.com" },
-	{ id: "t2", name: "Divya Sharma", subject: "Science", email: "diya.sharma@example.com" },
-	{ id: "t3", name: "Kabir Patel", subject: "English", email: "kabir.patel@example.com" },
-	{ id: "t4", name: "Isha Nair", subject: "History", email: "isha.nair@example.com" },
+    { id: "t1", name: "Aarav Mehta", subject: "Mathematics", email: "aarav.mehta@example.com" },
+    { id: "t2", name: "Divya Sharma", subject: "Science", email: "diya.sharma@example.com" },
+    { id: "t3", name: "Kabir Patel", subject: "English", email: "kabir.patel@example.com" },
+    { id: "t4", name: "Isha Nair", subject: "History", email: "isha.nair@example.com" },
 ];
 
 export const subjects: SubjectRecord[] = [
-	{ id: "s1", name: "Mathematics", createdAt: "2024-01-10" },
-	{ id: "s2", name: "Science", createdAt: "2024-02-14" },
-	{ id: "s3", name: "English", createdAt: "2024-03-05" },
-	{ id: "s4", name: "History", createdAt: "2024-04-19" },
+    { id: "s1", name: "Mathematics", createdAt: "2024-01-10" },
+    { id: "s2", name: "Science", createdAt: "2024-02-14" },
+    { id: "s3", name: "English", createdAt: "2024-03-05" },
+    { id: "s4", name: "History", createdAt: "2024-04-19" },
 ];
 
-export const students: StudentRecord[] = [
-	{
-		id: "stu1",
-		name: "Riya Verma",
-		className: "10-A",
-		subject: "Mathematics",
-		teacherId: "t1",
-		attendancePercent:29,
-		scorePercent: 68,
-		feeStatus: "Due",
-	},
-	{
-		id: "stu2",
-		name: "Arjun Singh",
-		className: "10-B",
-		subject: "Science",
-		teacherId: "t2",
-		attendancePercent: 68,
-		scorePercent: 72,
-		feeStatus: "Due",
-	},
-	{
-		id: "stu3",
-		name: "Meera Das",
-		className: "9-A",
-		subject: "English",
-		teacherId: "t3",
-		attendancePercent: 54,
-		scorePercent: 61,
-		feeStatus: "Overdue",
-	},
-	{
-		id: "stu4",
-		name: "Vihaan Rao",
-		className: "9-B",
-		subject: "History",
-		teacherId: "t4",
-		attendancePercent: 85,
-		scorePercent: 79,
-		feeStatus: "Paid",
-	},
-	{
-		id: "stu5",
-		name: "Anika Kapoor",
-		className: "10-A",
-		subject: "Mathematics",
-		teacherId: "t1",
-		attendancePercent: 73,
-		scorePercent: 66,
-		feeStatus: "Due",
-	},
-];
+// Remove sample students; rely on teacher-entered localStorage data
+export const students: StudentRecord[] = [];
 
 export const attendanceTrend: { date: string; attendance: number }[] = [
-	{ date: "2025-08-01", attendance: 92 },
-	{ date: "2025-08-08", attendance: 88 },
-	{ date: "2025-08-15", attendance: 90 },
-	{ date: "2025-08-22", attendance: 86 },
-	{ date: "2025-08-29", attendance: 89 },
-	{ date: "2025-09-05", attendance: 91 },
+    { date: "2025-08-01", attendance: 92 },
+    { date: "2025-08-08", attendance: 88 },
+    { date: "2025-08-15", attendance: 90 },
+    { date: "2025-08-22", attendance: 86 },
+    { date: "2025-08-29", attendance: 89 },
+    { date: "2025-09-05", attendance: 91 },
 ];
 
 // Risk distribution will be calculated dynamically based on AI predictions
@@ -169,20 +120,14 @@ export async function predictStudentRisk(student: Omit<StudentRecord, 'riskLevel
 
 // Function to get students with AI-predicted risk levels
 export async function getStudentsWithAIPredictions(): Promise<StudentRecord[]> {
-	const studentsWithoutRisk = students.map(({ riskLevel, aiPredicted, ...student }) => student);
-	
-	const studentsWithPredictions = await Promise.all(
-		studentsWithoutRisk.map(async (student) => {
-			const predictedRisk = await predictStudentRisk(student);
-			return {
-				...student,
-				riskLevel: predictedRisk,
-				aiPredicted: true
-			};
-		})
-	);
-
-	return studentsWithPredictions;
+    try {
+        const raw = typeof window !== 'undefined' ? localStorage.getItem('teacherStudents') : null;
+        const entries: Omit<StudentRecord, 'riskLevel' | 'aiPredicted'>[] = raw ? JSON.parse(raw) : [];
+        if (entries.length === 0) return [];
+        return await getStudentsWithAIPredictionsFrom(entries);
+    } catch {
+        return [];
+    }
 }
 
 // Totals will be calculated dynamically based on AI predictions

@@ -7,17 +7,40 @@ import { teachers as seedTeachers } from "../../lib/mockData";
 type Teacher = (typeof seedTeachers)[number];
 
 export default function TeachersPage() {
-	const [rows, setRows] = React.useState<Teacher[]>(seedTeachers);
+	const [rows, setRows] = React.useState<Teacher[]>([]);
 	const [role, setRole] = React.useState<string | null>(null);
 
 	const [name, setName] = React.useState("");
 	const [subject, setSubject] = React.useState("");
 	const [email, setEmail] = React.useState("");
 
+	// Persistence keys
+	const LS_TEACHERS = "adminTeachers";
+	const AUTH_KEY = "teacherAuth";
+	type TeacherAuth = { id: string; username: string; password: string };
+
+	const loadTeacherAuth = (): TeacherAuth[] => {
+		if (typeof window === "undefined") return [];
+		try { return JSON.parse(localStorage.getItem(AUTH_KEY) || "[]"); } catch { return []; }
+	};
+	const persistTeacherAuth = (list: TeacherAuth[]) => {
+		if (typeof window === "undefined") return;
+		localStorage.setItem(AUTH_KEY, JSON.stringify(list));
+	};
+
+	const persistTeachers = (list: Teacher[]) => {
+		if (typeof window === "undefined") return;
+		localStorage.setItem(LS_TEACHERS, JSON.stringify(list));
+	};
+
 	React.useEffect(() => {
 		try {
-			const r = typeof window !== "undefined" ? localStorage.getItem("authRole") : null;
+			const r = typeof window !== "undefined" ? (sessionStorage.getItem("authRole") || localStorage.getItem("authRole")) : null;
 			setRole(r);
+			// Load persisted teachers managed by Admin; if none, start empty
+			const raw = typeof window !== "undefined" ? localStorage.getItem(LS_TEACHERS) : null;
+			const stored: Teacher[] = raw ? JSON.parse(raw) : [];
+			setRows(stored);
 		} catch {
 			setRole(null);
 		}
@@ -27,14 +50,29 @@ export default function TeachersPage() {
 		e.preventDefault();
 		if (!name.trim() || !subject.trim() || !email.trim()) return;
 		const id = "t" + Math.random().toString(36).slice(2, 8);
-		setRows((prev) => [...prev, { id, name: name.trim(), subject: subject.trim(), email: email.trim() } as Teacher]);
+		setRows((prev) => {
+			const next = [...prev, { id, name: name.trim(), subject: subject.trim(), email: email.trim() } as Teacher];
+			persistTeachers(next);
+			// Create teacher credentials: username/password = teacher name
+			const auth = loadTeacherAuth();
+			auth.push({ id, username: name.trim(), password: name.trim() });
+			persistTeacherAuth(auth);
+			return next;
+		});
 		setName("");
 		setSubject("");
 		setEmail("");
 	};
 
 	const handleDelete = (id: string) => {
-		setRows((prev) => prev.filter((t) => t.id !== id));
+		setRows((prev) => {
+			const next = prev.filter((t) => (t as any).id !== id);
+			persistTeachers(next);
+			// Remove corresponding auth
+			const auth = loadTeacherAuth().filter((a) => a.id !== id);
+			persistTeacherAuth(auth);
+			return next as Teacher[];
+		});
 	};
 
 	const baseColumns: Column<Teacher>[] = [
