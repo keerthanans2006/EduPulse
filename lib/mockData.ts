@@ -13,6 +13,24 @@ export interface StudentRecord {
 	aiPredicted?: boolean; // Flag to indicate if risk was predicted by AI
 }
 
+// Generate AI-predicted risk levels for a provided list of students
+export async function getStudentsWithAIPredictionsFrom(input: Omit<StudentRecord, 'riskLevel' | 'aiPredicted'>[]): Promise<StudentRecord[]> {
+    const studentsWithoutRisk = input.map((student) => student);
+
+    const studentsWithPredictions = await Promise.all(
+        studentsWithoutRisk.map(async (student) => {
+            const predictedRisk = await predictStudentRisk(student);
+            return {
+                ...student,
+                riskLevel: predictedRisk,
+                aiPredicted: true,
+            } as StudentRecord;
+        })
+    );
+
+    return studentsWithPredictions;
+}
+
 export interface TeacherRecord {
 	id: string;
 	name: string;

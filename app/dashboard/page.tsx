@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import CardStats from "../components/CardStats";
 import RiskBadge from "../components/RiskBadge";
 import { AttendanceLine, RiskPie } from "../components/Charts";
-import { attendanceTrend, students, getStudentsWithAIPredictions, getRiskDistribution, getTotals, StudentRecord } from "../../lib/mockData";
+import { attendanceTrend, students, getStudentsWithAIPredictions, getStudentsWithAIPredictionsFrom, getRiskDistribution, getTotals, StudentRecord } from "../../lib/mockData";
 
 function getRoleFromSearch(searchParams: { role?: string }) {
 	return (searchParams.role as string) || "Admin";
@@ -18,8 +18,16 @@ export default function DashboardPage({ searchParams }: { searchParams: { role?:
 	useEffect(() => {
 		const loadAIPredictions = async () => {
 			try {
-				const studentsWithAI = await getStudentsWithAIPredictions();
-				setAiStudents(studentsWithAI);
+				// If role is Teacher, use teacher-managed students from localStorage
+				if (role === "Teacher") {
+					const raw = typeof window !== 'undefined' ? localStorage.getItem('teacherStudents') : null;
+					const teacherEntries: Omit<StudentRecord, 'riskLevel' | 'aiPredicted'>[] = raw ? JSON.parse(raw) : [];
+					const withAI = await getStudentsWithAIPredictionsFrom(teacherEntries);
+					setAiStudents(withAI);
+				} else {
+					const studentsWithAI = await getStudentsWithAIPredictions();
+					setAiStudents(studentsWithAI);
+				}
 			} catch (error) {
 				console.error('Error loading AI predictions:', error);
 				// Keep original students data if AI fails
@@ -29,7 +37,7 @@ export default function DashboardPage({ searchParams }: { searchParams: { role?:
 		};
 
 		loadAIPredictions();
-	}, []);
+	}, [role]);
 
 	if (loading) {
 		return (

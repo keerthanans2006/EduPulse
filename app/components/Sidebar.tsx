@@ -18,6 +18,28 @@ const navItems = [
 export default function Sidebar() {
 	const pathname = usePathname();
 	const [open, setOpen] = useState(false);
+	const [role, setRole] = useState<string | null>(null);
+
+	React.useEffect(() => {
+		try {
+			const storedRole = typeof window !== 'undefined' ? localStorage.getItem('authRole') : null;
+			setRole(storedRole);
+		} catch {
+			setRole(null);
+		}
+	}, []);
+
+	const filteredNavItems = navItems.filter(item => {
+		// Hide 'Records' for Admin users
+		if (item.href === "/records") {
+			return role !== "Admin";
+		}
+		// Hide 'Teachers' for Teacher role
+		if (item.href === "/teachers") {
+			return role !== "Teacher";
+		}
+		return true;
+	});
 
 	return (
 		<aside className={`fixed md:static z-40 h-full bg-white border-r w-64 md:w-64 transition-transform duration-200 ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
@@ -26,11 +48,11 @@ export default function Sidebar() {
 				<button className="md:hidden p-2 rounded-lg border" onClick={() => setOpen(false)}>✕</button>
 			</div>
 			<nav className="p-3 space-y-1">
-				{navItems.map(item => {
+				{filteredNavItems.map(item => {
 					const Icon = item.icon;
 					const active = pathname?.startsWith(item.href);
 					return (
-						<Link key={item.href} href={item.href} className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-slate-50 ${active ? "bg-slate-100 text-slate-900" : "text-slate-600"}`}>
+						<Link key={item.href} href={item.href as any} className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-slate-50 ${active ? "bg-slate-100 text-slate-900" : "text-slate-600"}`}>
 							<Icon className="w-4 h-4" />
 							<span>{item.label}</span>
 						</Link>

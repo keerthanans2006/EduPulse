@@ -9,6 +9,7 @@ declare module "react" {
 		interface FC<P = {}> { (props: P): any }
 		function useState<T = any>(initial: T | (() => T)): [T, (v: T | ((p: T) => T)) => void];
 		function useMemo<T>(factory: () => T, deps: any[]): T;
+		function useEffect(effect: () => void | (() => void), deps?: any[]): void;
 	}
 }
 
